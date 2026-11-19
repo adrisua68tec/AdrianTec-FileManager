@@ -1,0 +1,44 @@
+.github/workflows/buname: Compilar APK AdrianTec
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el codigo
+        uses: actions/checkout@v4
+
+      - name: Descomprimir el proyecto
+        run: |
+          for z in *.zip; do unzip -q -o "$z" "AdrianTec_FileManager_Android/*" || true; done
+          ls AdrianTec_FileManager_Android
+
+      - name: Instalar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Instalar Gradle 8.9
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.9
+
+
+
+      - name: Compilar APK
+        working-directory: AdrianTec_FileManager_Android
+        run: gradle assembleDebug --stacktrace
+
+      - name: Guardar la APK para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: AdrianTec-FileManager-APK
+          path: AdrianTec_FileManager_Android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: errorild-apk.yml
